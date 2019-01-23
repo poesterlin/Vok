@@ -8,7 +8,15 @@ import "material-design-icons-iconfont/dist/material-design-icons.css";
 
 Vue.config.productionTip = false;
 
-Vue.use(Vuetify);
+Vue.use(Vuetify, {
+  breakpoint: {
+    thresholds: {
+      xs: 360,
+      md: 600
+    },
+    scrollbarWidth: 10
+  }
+})
 
 new Vue({
   render: h => h(App),

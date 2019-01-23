@@ -44,16 +44,16 @@
       <v-card elevation-0 id="settings">
         <b>Settings: </b>
         <v-layout row wrap justify-center>
-          <v-flex xs6 px-2>
+          <v-flex md3 xs6 px-2>
             <v-switch label="Forward" color="orange" v-model="forward"></v-switch>
           </v-flex>
-          <v-flex md4 xs12 px-2>
+          <v-flex md3 xs6 px-2>
             <v-text-field v-model="penalty" type="number" label="Penalty for wrong answer" class="input-group--focused" :rules="[rule.positive]"/>
           </v-flex>
-          <v-flex md4 xs12 px-2>
+          <v-flex md3 xs6 px-2>
             <v-text-field v-model="repeat" type="number" label="Repetitions" class="input-group--focused" :rules="[rule.one]"/>
           </v-flex>
-          <v-flex md4 xs12 px-2>
+          <v-flex md3 xs6 px-2>
             <v-text-field v-model="batchsize" type="number" label="Group size" class="input-group--focused" :rules="[rule.one]"/>
           </v-flex>
         </v-layout>
