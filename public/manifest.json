@@ -1,6 +1,6 @@
 {
-  "name": "VokabelAbfrage",
-  "short_name": "VokabelAbfrage",
+  "name": "Vokabel Abfrage",
+  "short_name": "Vocs",
   "icons": [
     {
       "src": "./img/icons/android-chrome-192x192.png",
