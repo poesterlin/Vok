@@ -31,7 +31,7 @@
           <tr v-for="row in range.to" :key="row" :class="{del: isIgnored(row)}">
             <td v-if="getCell(true, row) && getCell(false, row)">{{getCell(true, row)}}</td>
             <td v-if="getCell(true, row) && getCell(false, row)">{{getCell(false, row)}}</td>
-            <td>
+            <td v-if="getCell(true, row) && getCell(false, row)">
               <v-btn icon small flat @click="ignoreRow(row)">
                 <v-icon v-if="isIgnored(row)">add</v-icon>
                 <v-icon v-else>delete</v-icon>
@@ -47,9 +47,6 @@
           <v-flex xs6 px-2>
             <v-switch label="Forward" color="orange" v-model="forward"></v-switch>
           </v-flex>
-          <v-flex xs6 px-2>
-            <v-switch label="Has a headline" color="orange" v-model="headline"></v-switch>
-          </v-flex>
           <v-flex md4 xs12 px-2>
             <v-text-field v-model="penalty" type="number" label="Penalty for wrong answer" class="input-group--focused" :rules="[rule.positive]"/>
           </v-flex>
@@ -63,7 +60,7 @@
       </v-card>
       <v-layout>
         <v-flex xs12 pa-2>
-          <v-btn id="done" large color="orange darken-2" @click="done()">Done</v-btn>
+          <v-btn id="done" large color="orange darken-2" @click="done()">start Test</v-btn>
         </v-flex>
       </v-layout>
     </div>
@@ -71,13 +68,11 @@
 </template>
 
 <script>
-/* eslint-disable */
 import XLSX from "xlsx";
 export default {
   name: "FileUpload",
   data() {
     return {
-      headline: false,
       forward: true,
       penalty: 1,
       range: {},
@@ -93,8 +88,8 @@ export default {
     };
   },
   mounted() {
+    this.workbook = {};
     this.stored = this.hasStored();
-    console.log(this.stored);
   },
   methods: {
     handleDrop(e) {
@@ -121,14 +116,13 @@ export default {
       this.workbook = JSON.parse(JSON.stringify(sheet));
     },
     getCell(frontRow, idx) {
-      const index = this.headline ? idx + 1 : idx;
       let row;
       if (frontRow) {
         row = this.forward ? "A" : "B";
       } else {
         row = this.forward ? "B" : "A";
       }
-      const val = this.workbook[row + index];
+      const val = this.workbook[row + idx];
       if (val && val.t === "s") {
         return val.v;
       }
@@ -141,38 +135,29 @@ export default {
       this.handleDrop(e);
     },
     done() {
-      this.ignore.forEach((val, idx) => {
-        this.workbook["A" + idx + 1] = undefined;
-        this.workbook["B" + idx + 1] = undefined;
+      const length = Object.keys(this.workbook).length / 2 + 1;
+      let vocs = new Array(length).fill(null).map((_, idx) => {
+        if (
+          !this.workbook["A" + (idx + 1)] ||
+          !this.workbook["B" + (idx + 1)]
+        ) {
+          return;
+        }
+        return {
+          q: this.workbook["A" + (idx + 1)].v,
+          a: this.workbook["B" + (idx + 1)].v
+        };
       });
 
-      if (this.headline) {
-        this.workbook.A1 = this.workbook["A" + this.range.to];
-        this.workbook.B1 = this.workbook["B" + this.range.to];
-      }
+      this.ignore.forEach((val, idx) => {
+        vocs.splice(idx, 1);
+      });
+
+      vocs = vocs.filter(v => !!v);
 
       if (!this.forward) {
-        for (let idx = this.range.from; idx <= this.range.to; idx++) {
-          const before = [this.workbook["B" + idx], this.workbook["A" + idx]];
-          [this.workbook["A" + idx], this.workbook["B" + idx]] = before;
-        }
+        vocs = vocs.map(v => ({ q: v.a, a: v.q }));
       }
-      const length = Object.keys(this.workbook).length / 2 + 1;
-      const vocs = new Array(length)
-        .fill(null)
-        .map((_, idx) => {
-          if (
-            !this.workbook["A" + (idx + 1)] ||
-            !this.workbook["B" + (idx + 1)]
-          ) {
-            return;
-          }
-          return {
-            q: this.workbook["A" + (idx + 1)].v,
-            a: this.workbook["B" + (idx + 1)].v
-          };
-        })
-        .filter(v => !!v);
 
       this.emit({
         data: vocs,
@@ -187,16 +172,17 @@ export default {
       } else {
         this.ignore[row] = true;
       }
+      this.$forceUpdate();
     },
     isIgnored(row) {
       return this.ignore[row];
     },
     hasStored() {
       try {
-        const repeat = this.parse("repeat");
-        const penalty = this.parse("penalty");
-        const batchsize = this.parse("batchsize");
-        const vocs = this.parse("vocs");
+        this.parse("repeat");
+        this.parse("penalty");
+        this.parse("batchsize");
+        this.parse("vocs");
 
         return true;
       } catch (error) {
@@ -271,6 +257,7 @@ div#scroller {
 }
 
 table#vocs {
+  width: 100%;
   border: 2px solid rgba(28, 31, 51, 0.26);
   border-spacing: 0;
   .headline {

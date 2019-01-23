@@ -3,8 +3,8 @@
     <header>
       <h2>Universal Vocabulary Test</h2>
     </header>
-    <FileUpload v-if="mode == 'read'" @done="startTest"/>
-    <Test :vocs="vocs" v-else/>
+    <FileUpload v-if="mode == 'read'" @done="startTest" />
+    <Test :vocs="vocs" v-else @again="mode = 'read'"/>
   </div>
 </template>
 
@@ -21,12 +21,11 @@ export default {
   data() {
     return {
       mode: "read",
-      vocs: {},
-      range: {}
+      vocs: {}
     };
   },
-  methods:{
-    startTest(wb){
+  methods: {
+    startTest(wb) {
       this.mode = "test";
       this.vocs = wb;
     }

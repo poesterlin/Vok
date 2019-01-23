@@ -1,15 +1,20 @@
 <template>
   <div>
+  <v-card v-if="isDone" id="done">
+      <h1>You are done</h1>
+      <br>
+      <v-btn color="orange" @click="$emit('again')">test again</v-btn>
+    </v-card>
 
-    <v-card elevation-3 id="card">
+    <v-card elevation-3 id="card" v-else-if="currVoc && currVoc.voc">
       <v-card-title primary-title id="test">
-          <div id="counter">
-            <span>Correct: {{currentbatch[batchIndex].right}}/{{repeat}}</span>
+          <div id="counter" >
+            <span>Correct: {{currVoc.right}}/{{currentbatch.length}}</span>
             <span>Total: {{done.length}}/{{all.length}}</span>
           </div>
-          <div id="question">{{currentbatch[batchIndex].voc.q}}</div>
+          <div id="question">{{currVoc.voc.q}}</div>
           <div id="answer" :class="{hide: !reveal}"> 
-            <b>A:</b> {{currentbatch[batchIndex].voc.a}}
+            <b>A:</b> {{currVoc.voc.a}}
           </div>
       </v-card-title>
       <v-card-actions>
@@ -21,6 +26,8 @@
         </div>
       </v-card-actions>
     </v-card>
+
+  
 
   </div>
 </template>
@@ -40,13 +47,18 @@ export default {
     };
   },
   mounted() {
-    this.notSeen = JSON.parse(JSON.stringify(this.all));
-    this.currentbatch = new Array(this.batchLength)
+    this.notSeen = this.all.slice(0);
+    this.currentbatch = new Array(
+      Math.min(this.batchLength, this.notSeen.length)
+    )
       .fill(null)
-      .map(() => this.getRandom());
+      .map(this.getRandom);
   },
   methods: {
     next(correct) {
+      if (this.isDone) {
+        return;
+      }
       if (correct) {
         const cv = this.currentbatch[this.batchIndex];
         cv.right += 1;
@@ -58,7 +70,7 @@ export default {
         if (this.penalty <= 0) {
           cv.right = 0;
         } else {
-          cv.right = cv.right < 1 ? 0 : cv.right--;
+          cv.right = cv.right < 1 ? 0 : cv.right - this.penalty;
         }
       }
 
@@ -66,21 +78,42 @@ export default {
         this.currentbatch.length < this.batchLength &&
         this.notSeen.length > 0
       ) {
-        this.currentbatch.push(this.getRandom());
+        this.currentbatch.unshift(this.getRandom());
       }
       this.skip();
     },
     skip() {
+      if (this.isDone) {
+        return;
+      }
       this.reveal = false;
-      this.batchIndex = (this.batchIndex + 1) % this.batchLength;
+      this.batchIndex =
+        (this.batchIndex + 1) %
+        Math.min(this.batchLength, this.currentbatch.length);
     },
     getRandom() {
-      const randIdx = Math.floor(Math.random() * this.notSeen.length) + 1;
+      const randIdx = Math.min(
+        Math.floor(Math.random() * this.notSeen.length) + 1,
+        this.notSeen.length - 1
+      );
       const voc = this.notSeen.splice(randIdx, 1)[0];
       return { voc, right: 0 };
     }
   },
   computed: {
+    isDone() {
+      return this.done.length === this.all.length;
+    },
+    currVoc() {
+      if (this.isDone || this.currentbatch.length === 0) {
+        return undefined;
+      }
+      const val = this.currentbatch[this.batchIndex];
+      if (!val) {
+        this.skip();
+      }
+      return val;
+    },
     all() {
       return this.vocs.data;
     },
@@ -134,9 +167,14 @@ export default {
   margin: auto;
 }
 
+#done,
 #card {
   width: 90vw;
   max-width: 800px;
   margin: auto;
+  min-height: 100px;
+  h1 {
+    padding-top: 35px;
+  }
 }
 </style>
