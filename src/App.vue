@@ -9,14 +9,11 @@
 </template>
 
 <script>
-import FileUpload from "./components/FileUpload.vue";
-import Test from "./components/Test.vue";
-
 export default {
   name: "app",
   components: {
-    FileUpload,
-    Test
+    'FileUpload': () => import('@/components/FileUpload.vue'),
+    'Test': () => import('@/components/Test.vue')
   },
   data() {
     return {
