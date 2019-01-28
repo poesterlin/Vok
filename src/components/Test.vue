@@ -9,7 +9,7 @@
     <v-card elevation-3 id="card" v-else-if="currVoc && currVoc.voc">
       <v-card-title primary-title id="test">
           <div id="counter" >
-            <span>Correct: {{currVoc.right}}/{{currentbatch.length}}</span>
+            <span>Correct: {{currVoc.right}}/{{repeat}}</span>
             <span>Total: {{done.length}}/{{all.length}}</span>
           </div>
           <div id="question">{{currVoc.voc.q}}</div>
