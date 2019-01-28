@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card elevation-3 v-if="stored" id="upload" @dragover="$event.preventDefault()" @drop="handleDrop($event)" >
+    <v-card elevation-3 v-if="stored" id="restore" @dragover="$event.preventDefault()" @drop="handleDrop($event)" >
       <br>
       <h2> Restore previous file? </h2>
       <v-card-actions>
@@ -8,7 +8,7 @@
         <v-btn color="orange" flat @click="reset">no</v-btn>
       </v-card-actions>
     </v-card>
-    <v-card elevation-3 v-else-if="!workbook.A1" id="upload" @dragover="$event.preventDefault()" @drop="handleDrop($event)" >
+    <v-card elevation-3 v-if="!workbook.A1" id="upload" @dragover="$event.preventDefault()" @drop="handleDrop($event)" >
       <v-card-title primary-title>
         <div>
           <h3 class="headline mb-0">Drag a .xlsx file here</h3><br><br>
@@ -226,6 +226,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+#restore,
 #upload {
   width: 80vw;
   max-width: 800px;
@@ -234,6 +235,10 @@ export default {
   * {
     margin: 20px auto;
   }
+}
+
+#restore{
+  margin-bottom: 30px;
 }
 
 div.center {
