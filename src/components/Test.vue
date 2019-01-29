@@ -10,8 +10,10 @@
       <v-card-title primary-title id="test">
           <div id="counter" >
             <span>Correct: {{currVoc.right}}/{{repeat}}</span>
+            <span v-if="time > 0">{{timeLeft}}</span>
             <span>Total: {{done.length}}/{{all.length}}</span>
           </div>
+          
           <div id="question">{{currVoc.voc.q}}</div>
           <div id="answer" :class="{hide: !reveal}"> 
             <b>A:</b> {{currVoc.voc.a}}
@@ -43,7 +45,10 @@ export default {
       index: 0,
       notSeen: [],
       done: [],
-      reveal: false
+      reveal: false,
+      timeout: null,
+      startTime: Date.now(),
+      currentTime: Date.now()
     };
   },
   mounted() {
@@ -54,7 +59,13 @@ export default {
       .fill(null)
       .map(this.getRandom);
 
+    // eslint-disable-next-line
+    console.log(this.vocs);
+
     document.onvisibilitychange = this.checkVisible;
+
+    setInterval(() => (this.currentTime = Date.now()), 1000);
+    this.skip();
   },
   methods: {
     next(correct) {
@@ -92,6 +103,13 @@ export default {
       this.batchIndex =
         (this.batchIndex + 1) %
         Math.min(this.batchLength, this.currentbatch.length);
+
+      if (this.time > 0) {
+        this.startTime = Date.now();
+        this.currentTime = Date.now();
+        clearTimeout(this.timeout);
+        this.timeout = setTimeout(() => this.next(false), this.time * 1000);
+      }
     },
     getRandom() {
       const randIdx = Math.min(
@@ -133,6 +151,12 @@ export default {
     },
     repeat() {
       return this.vocs.repeat;
+    },
+    time() {
+      return this.vocs.time;
+    },
+    timeLeft() {
+      return Math.floor((this.startTime - this.currentTime) / 1000) + this.time;
     }
   }
 };

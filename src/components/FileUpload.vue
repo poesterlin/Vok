@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card elevation-3 v-if="stored" id="restore" @dragover="$event.preventDefault()" @drop="handleDrop($event)" >
+    <v-card elevation-3 v-if="stored && !workbook.A1" id="restore" @dragover="$event.preventDefault()" @drop="handleDrop($event)" >
       <br>
       <h2> Restore previous file? </h2>
       <v-card-actions>
@@ -48,13 +48,19 @@
             <v-switch label="Forward" color="orange" v-model="forward"></v-switch>
           </v-flex>
           <v-flex md3 xs6 px-2>
-            <v-text-field v-model="penalty" type="number" label="Penalty for wrong answer" class="input-group--focused" :rules="[rule.positive]"/>
+            <v-text-field v-model="penalty" type="number" label="Penalty for wrong answer" :rules="[rule.positive]"/>
           </v-flex>
           <v-flex md3 xs6 px-2>
-            <v-text-field v-model="repeat" type="number" label="Repetitions" class="input-group--focused" :rules="[rule.one]"/>
+            <v-text-field v-model="repeat" type="number" label="Repetitions" :rules="[rule.one]"/>
           </v-flex>
           <v-flex md3 xs6 px-2>
-            <v-text-field v-model="batchsize" type="number" label="Group size" class="input-group--focused" :rules="[rule.one]"/>
+            <v-text-field v-model="batchsize" type="number" label="Group size" :rules="[rule.one]"/>
+          </v-flex>
+          <v-flex md3 xs6 px-2>
+            <v-switch label="Timed" color="orange" v-model="timed"></v-switch>
+          </v-flex>
+          <v-flex md3 xs6 px-2>
+            <v-text-field v-model="time" type="number" v-if="timed" label="Time in sec" :rules="[rule.one]"/>
           </v-flex>
         </v-layout>
       </v-card>
@@ -84,7 +90,9 @@ export default {
       rule: {
         positive: n => n >= 0 || "has to be 0 or bigger",
         one: n => n >= 1 || "has to be 1 or bigger"
-      }
+      },
+      timed: false,
+      time: 30
     };
   },
   mounted() {
@@ -163,7 +171,8 @@ export default {
         data: vocs,
         penalty: this.penalty,
         batchsize: this.batchsize,
-        repeat: this.repeat
+        repeat: this.repeat,
+        time: this.sec
       });
     },
     ignoreRow(row) {
@@ -183,6 +192,7 @@ export default {
         this.parse("penalty");
         this.parse("batchsize");
         this.parse("vocs");
+        this.parse("time");
 
         return true;
       } catch (error) {
@@ -209,19 +219,25 @@ export default {
       const penalty = this.parse("penalty");
       const batchsize = this.parse("batchsize");
       const data = this.parse("vocs");
+      const time = this.parse("time");
 
-      this.emit({ data, penalty, batchsize, repeat });
+      this.emit({ data, penalty, batchsize, repeat, time });
     },
-    emit({ data, penalty, batchsize, repeat }) {
+    emit({ data, penalty, batchsize, repeat, time }) {
       this.store("repeat", repeat);
       this.store("penalty", penalty);
       this.store("batchsize", batchsize);
       this.store("vocs", data);
+      this.store("time", time);
 
-      this.$emit("done", { data, penalty, batchsize, repeat });
+      this.$emit("done", { data, penalty, batchsize, repeat, time });
     }
   },
-  computed: {}
+  computed: {
+    sec() {
+      return this.timed ? this.time : 0;
+    }
+  }
 };
 </script>
 
@@ -237,7 +253,7 @@ export default {
   }
 }
 
-#restore{
+#restore {
   margin-bottom: 30px;
 }
 
