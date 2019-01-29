@@ -10,7 +10,7 @@
       <v-card-title primary-title id="test">
           <div id="counter" >
             <span>Correct: {{currVoc.right}}/{{repeat}}</span>
-            <span v-if="time > 0">{{timeLeft}}</span>
+            <span v-if="time > 0 && !reveal">{{timeLeft}}</span>
             <span>Total: {{done.length}}/{{all.length}}</span>
           </div>
           
@@ -108,7 +108,7 @@ export default {
         this.startTime = Date.now();
         this.currentTime = Date.now();
         clearTimeout(this.timeout);
-        this.timeout = setTimeout(() => this.next(false), this.time * 1000);
+        this.timeout = setTimeout(() => this.reveal || this.next(false), this.time * 1000);
       }
     },
     getRandom() {
