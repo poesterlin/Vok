@@ -53,6 +53,8 @@ export default {
     )
       .fill(null)
       .map(this.getRandom);
+
+    document.onvisibilitychange = this.checkVisible;
   },
   methods: {
     next(correct) {
@@ -62,7 +64,7 @@ export default {
       if (correct) {
         const cv = this.currentbatch[this.batchIndex];
         cv.right += 1;
-        if (cv.right === this.repeat) {
+        if (cv.right >= this.repeat) {
           this.done.push(this.currentbatch.splice(this.batchIndex, 1));
         }
       } else {
@@ -98,6 +100,12 @@ export default {
       );
       const voc = this.notSeen.splice(randIdx, 1)[0];
       return { voc, right: 0 };
+    },
+    checkVisible() {
+      if (document.visibilityState === "hidden") {
+        const audio = new Audio("doit.mp3");
+        audio.play();
+      }
     }
   },
   computed: {
