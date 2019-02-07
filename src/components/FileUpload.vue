@@ -318,10 +318,6 @@ table#vocs {
   width: 100%;
   border: 2px solid rgba(28, 31, 51, 0.26);
   border-spacing: 0;
-  .headline {
-    font-size: 120%;
-    font-weight: bold;
-  }
   tr {
     &:nth-child(odd) {
       background: lightgray;

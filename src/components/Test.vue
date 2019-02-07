@@ -1,36 +1,44 @@
 <template>
   <div>
-  <v-card v-if="isDone" id="done">
-      <h1>You are done</h1>
+    <div v-if="isDone">
+      <v-card id="done">
+        <h1>You are done</h1>
+        <br>
+        <v-btn color="orange" @click="$emit('again')">test again</v-btn>
+      </v-card>
       <br>
-      <v-btn color="orange" @click="$emit('again')">test again</v-btn>
-    </v-card>
+      <Report :result="results"></Report>
+    </div>
 
     <v-card elevation-3 id="card" v-else-if="currVoc && currVoc.voc">
       <v-card-title primary-title id="test">
-          <div id="counter" >
-            <span>Correct: {{currVoc.right}}/{{repeat}}</span>
-            <span v-if="time > 0 && !reveal">{{timeLeft}}</span>
-            <span>Total: {{done.length}}/{{all.length}}</span>
-          </div>
-          
-          <div id="question">{{currVoc.voc.q}}</div>
-          <div id="answer" :class="{hide: !reveal}"> 
-            <b>A:</b> {{currVoc.voc.a}}
-          </div>
+        <div id="counter">
+          <span>Correct: {{currVoc.right}}/{{repeat}}</span>
+          <span v-if="time > 0 && !reveal">{{timeLeft}}</span>
+          <span>Total: {{done.length}}/{{all.length}}</span>
+        </div>
+
+        <div id="question">{{currVoc.voc.q}}</div>
+        <div id="answer" :class="{hide: !reveal}">
+          <b>A:</b>
+          {{currVoc.voc.a}}
+        </div>
       </v-card-title>
       <v-card-actions>
         <div id="btns">
-          <v-btn v-if="!reveal" color="orange lighten-2" round :ripple="false" @click="reveal = true">Reveal</v-btn>
+          <v-btn
+            v-if="!reveal"
+            color="orange lighten-2"
+            round
+            :ripple="false"
+            @click="reveal = true"
+          >Reveal</v-btn>
           <v-btn v-if="reveal" color="green lighten-1" depressed @click="next(true)">right</v-btn>
           <v-btn v-if="reveal" color="red lighten-1" depressed @click="next(false)">wrong</v-btn>
-          <v-btn v-if="reveal" color="orange" flat @click="skip()">skip</v-btn>
+          <v-btn v-if="reveal" color="orange" flat @click="skip(); setRes({ skipped: true });">skip</v-btn>
         </div>
       </v-card-actions>
     </v-card>
-
-  
-
   </div>
 </template>
 
@@ -38,6 +46,9 @@
 export default {
   name: "test",
   props: ["vocs"],
+  components: {
+    'Report': () => import('@/components/Report.vue')
+  },
   data() {
     return {
       currentbatch: [],
@@ -48,14 +59,14 @@ export default {
       reveal: false,
       timeout: null,
       startTime: Date.now(),
-      currentTime: Date.now()
+      currentTime: Date.now(),
+      results: [],
     };
   },
   mounted() {
     this.notSeen = this.all.slice(0);
-    this.currentbatch = new Array(
-      Math.min(this.batchLength, this.notSeen.length)
-    )
+    this.results = this.all.map(voc => { return { voc: voc.q, answer: voc.a, wrong: 0, skipped: 0, right: 0 } })
+    this.currentbatch = new Array(Math.min(this.batchLength, this.notSeen.length))
       .fill(null)
       .map(this.getRandom);
 
@@ -75,11 +86,13 @@ export default {
       if (correct) {
         const cv = this.currentbatch[this.batchIndex];
         cv.right += 1;
+        this.setRes({ right: true });
         if (cv.right >= this.repeat) {
           this.done.push(this.currentbatch.splice(this.batchIndex, 1));
         }
       } else {
         const cv = this.currentbatch[this.batchIndex];
+        this.setRes({ wrong: true });
         if (this.penalty <= 0) {
           cv.right = 0;
         } else {
@@ -120,11 +133,21 @@ export default {
       return { voc, right: 0 };
     },
     checkVisible() {
-      if (document.visibilityState === "hidden") {
-        const audio = new Audio("doit.mp3");
-        audio.play();
+      if (location.href.includes("localhost")) {
+        if (document.visibilityState === "hidden") {
+          const audio = new Audio("doit.mp3");
+          audio.play();
+        }
       }
+    },
+    setRes({ wrong, skipped, right }) {
+      const cv = this.currentbatch[this.batchIndex].voc;
+      const res = this.results.find(c => c.voc === cv.q && c.answer === cv.a);
+      res.wrong += wrong ? 1 : 0;
+      res.skipped += skipped ? 1 : 0;
+      res.right += right ? 1 : 0;
     }
+
   },
   computed: {
     isDone() {
@@ -157,7 +180,7 @@ export default {
     },
     timeLeft() {
       return Math.floor((this.startTime - this.currentTime) / 1000) + this.time;
-    }
+    },
   }
 };
 </script>
