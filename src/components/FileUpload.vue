@@ -1,29 +1,50 @@
 <template>
   <div>
-    <v-card elevation-3 v-if="stored && !workbook.A1" id="restore" @dragover="$event.preventDefault()" @drop="handleDrop($event)" >
+    <v-card
+      elevation-3
+      v-if="stored && !workbook.A1"
+      id="restore"
+      @dragover="$event.preventDefault()"
+      @drop="handleDrop($event)"
+    >
       <br>
-      <h2> Restore previous file? </h2>
+      <h2>Restore previous file?</h2>
       <v-card-actions>
         <v-btn color="orange" @click="restore">yes</v-btn>
         <v-btn color="orange" flat @click="reset">no</v-btn>
       </v-card-actions>
     </v-card>
-    <v-card elevation-3 v-if="!workbook.A1" id="upload" @dragover="$event.preventDefault()" @drop="handleDrop($event)" >
+    <v-card
+      elevation-3
+      v-if="!workbook.A1"
+      id="upload"
+      @dragover="$event.preventDefault()"
+      @drop="handleDrop($event)"
+    >
       <v-card-title primary-title>
         <div>
-          <h3 class="headline mb-0">Drag a .xlsx file here</h3><br><br>
-          or <br><br>
-          <v-btn label="Select Image" @click='pickFile' prepend-icon='attach_file'>select a file</v-btn>
-					<input type="file" style="display: none" ref="file" accept=".xlsx" @change="onFilePicked"/>
+          <h3 class="headline mb-0">Drag a .xlsx file here</h3>
+          <br>
+          <br>or
+          <br>
+          <br>
+          <v-btn label="Select Image" @click="pickFile" prepend-icon="attach_file">select a file</v-btn>
+          <input type="file" style="display: none" ref="file" accept=".xlsx" @change="onFilePicked">
         </div>
       </v-card-title>
     </v-card>
     <div class="center" v-else>
       <table id="arrow">
         <tr>
-          <td> <span>Question</span> </td>
-          <td> <v-icon dark>arrow_forward</v-icon> </td>
-          <td> <span>Answer</span> </td>
+          <td>
+            <span>Question</span>
+          </td>
+          <td>
+            <v-icon dark>arrow_forward</v-icon>
+          </td>
+          <td>
+            <span>Answer</span>
+          </td>
         </tr>
       </table>
       <div id="scroller">
@@ -42,13 +63,18 @@
       </div>
       <br>
       <v-card elevation-0 id="settings">
-        <b>Settings: </b>
+        <b>Settings:</b>
         <v-layout row wrap justify-center>
           <v-flex md3 xs6 px-2>
             <v-switch label="Forward" color="orange" v-model="forward"></v-switch>
           </v-flex>
           <v-flex md3 xs6 px-2>
-            <v-text-field v-model="penalty" type="number" label="Penalty for wrong answer" :rules="[rule.positive]"/>
+            <v-text-field
+              v-model="penalty"
+              type="number"
+              label="Penalty for wrong answer"
+              :rules="[rule.positive]"
+            />
           </v-flex>
           <v-flex md3 xs6 px-2>
             <v-text-field v-model="repeat" type="number" label="Repetitions" :rules="[rule.one]"/>
@@ -60,7 +86,13 @@
             <v-switch label="Timed" color="orange" v-model="timed"></v-switch>
           </v-flex>
           <v-flex md3 xs6 px-2>
-            <v-text-field v-model="time" type="number" v-if="timed" label="Time in sec" :rules="[rule.one]"/>
+            <v-text-field
+              v-model="time"
+              type="number"
+              v-if="timed"
+              label="Time in sec"
+              :rules="[rule.one]"
+            />
           </v-flex>
         </v-layout>
       </v-card>
@@ -143,7 +175,11 @@ export default {
       this.handleDrop(e);
     },
     done() {
-      const length = Object.keys(this.workbook).length / 2 + 1;
+      const length = Object.keys(this.workbook)
+        .filter(key => key.startsWith("B") && this.workbook[key.replace("B", "A")])
+        .map(k => parseInt(k.substring(1)))
+        .reduce((max, curr) => curr > max ? curr : max, 0);
+
       let vocs = new Array(length).fill(null).map((_, idx) => {
         if (
           !this.workbook["A" + (idx + 1)] ||
@@ -157,18 +193,19 @@ export default {
         };
       });
 
-      this.ignore.forEach((val, idx) => {
-        vocs.splice(idx, 1);
+      let filterd = [];
+      vocs.forEach((val, idx) => {
+        if (!this.ignore[idx + 1]) {
+          filterd.push(val);
+        }
       });
 
-      vocs = vocs.filter(v => !!v);
-
       if (!this.forward) {
-        vocs = vocs.map(v => ({ q: v.a, a: v.q }));
+        filterd = filterd.map(v => ({ q: v.a, a: v.q }));
       }
 
       this.emit({
-        data: vocs,
+        data: filterd,
         penalty: this.penalty,
         batchsize: this.batchsize,
         repeat: this.repeat,
