@@ -33,6 +33,10 @@
         </div>
       </v-card-title>
     </v-card>
+    <div v-if="!workbook.A1" id="grafic">
+      <img src="../assets/Anleitung.svg" alt>
+    </div>
+
     <div class="center" v-else>
       <table id="arrow">
         <tr>
@@ -287,6 +291,15 @@ export default {
   margin: auto;
   * {
     margin: 20px auto;
+  }
+}
+
+#grafic {
+  width: 80vw;
+  max-width: 800px;
+  margin: 25px auto;
+  img {
+    width: 100%;
   }
 }
 
