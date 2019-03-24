@@ -8,7 +8,7 @@
       @drop="handleDrop($event)"
     >
       <br>
-      <h2>Restore previous file?</h2>
+      <h3 class="headline mb-0">Restore previous file?</h3>
       <v-card-actions>
         <v-btn color="orange" @click="restore">yes</v-btn>
         <v-btn color="orange" flat @click="reset">no</v-btn>
@@ -28,8 +28,21 @@
           <br>or
           <br>
           <br>
-          <v-btn label="Select Image" @click="pickFile" prepend-icon="attach_file">select a file</v-btn>
-          <input type="file" style="display: none" ref="file" accept=".xlsx" @change="onFilePicked">
+          <v-btn
+            color="orange"
+            flat
+            label="Select Image"
+            @click="pickFile"
+            prepend-icon="attach_file"
+          >select a file</v-btn>
+          <input
+            type="file"
+            loading="loading"
+            style="display: none"
+            ref="file"
+            accept=".xlsx"
+            @change="onFilePicked"
+          >
         </div>
       </v-card-title>
     </v-card>
@@ -122,6 +135,7 @@ export default {
       ignore: [],
       batchsize: 5,
       repeat: 5,
+      loading: false,
       stored: false,
       rule: {
         positive: n => n >= 0 || "has to be 0 or bigger",
@@ -137,6 +151,7 @@ export default {
   },
   methods: {
     handleDrop(e) {
+      this.loading = true;
       e.stopPropagation();
       e.preventDefault();
       var files = e.dataTransfer.files,
@@ -158,6 +173,7 @@ export default {
       };
       delete sheet["!ref"];
       this.workbook = JSON.parse(JSON.stringify(sheet));
+      this.loading = false;
     },
     getCell(frontRow, idx) {
       let row;
@@ -305,6 +321,7 @@ export default {
 
 #restore {
   margin-bottom: 30px;
+  height: 165px;
 }
 
 div.center {
@@ -314,8 +331,9 @@ div.center {
 }
 
 div#scroller {
-  overflow: auto;
   max-height: 50vh;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 #arrow {
