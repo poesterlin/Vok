@@ -64,8 +64,8 @@ export default {
     };
   },
   mounted() {
-    this.notSeen = this.all.slice(0);
-    this.results = this.all.map(voc => { return { voc: voc.q, answer: voc.a, wrong: 0, skipped: 0, right: 0 } })
+    this.notSeen = this.all.filter(t => !!t).slice(0);
+    this.results = this.all.filter(t => !!t).map(voc => { return { voc: voc.q, answer: voc.a, wrong: 0, skipped: 0, right: 0 } })
     this.currentbatch = new Array(Math.min(this.batchLength, this.notSeen.length))
       .fill(null)
       .map(this.getRandom);
