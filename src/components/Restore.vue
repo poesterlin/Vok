@@ -1,12 +1,8 @@
 <template>
-  <div>
-    <v-card elevation-3>
-      <p class="display-1 text--primary">Restore previous file?</p>
-      <v-card-actions>
-        <v-btn color="primary" @click="restore">yes</v-btn>
-        <v-btn color="primary" flat @click="reset">no</v-btn>
-      </v-card-actions>
-    </v-card>
+  <div id="card">
+    <span id="headline">Restore previous file?</span>
+    <v-btn id="button1" @click="restore">yes</v-btn>
+    <v-btn id="button2" flat @click="reset">no</v-btn>
   </div>
 </template>
 
@@ -16,7 +12,7 @@ export default {
   prop: ["value"],
   data() {
     return {
-      loading: false,
+      loading: false
     };
   },
   methods: {
@@ -38,8 +34,50 @@ export default {
     emit({ data, penalty, batchsize, repeat, time }) {
       this.$emit("input", { data, penalty, batchsize, repeat, time });
     }
-  },
+  }
 };
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+div#card {
+  box-shadow: 2px 3px 6px #0000002e;
+  padding: 20px;
+  height: 9vh;
+  display: grid;
+
+  grid-template-areas: "header button1 button2";
+  grid-template-columns: auto 140px 140px;
+
+  @media (max-width: 728px) {
+    span#header {
+      font-size: 18px !important;
+      margin: auto auto !important;
+    }
+    padding: 5px;
+    height: 16vh;
+    grid-template-areas:
+      "header header"
+      "button1 button2";
+    grid-template-columns: 50% 50%;
+    grid-template-rows: 50% 50%;
+  }
+
+  span#headline {
+    grid-area: header;
+    margin: auto;
+    font-size: 20px;
+    text-align: center;
+  }
+  #button1 {
+    grid-area: button1;
+    color: white !important;
+    font-weight: bold;
+    background: #ffa600 !important;
+    margin: auto;
+  }
+  #button2 {
+    grid-area: button2;
+    margin: auto;
+  }
+}
+</style>

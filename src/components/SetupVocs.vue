@@ -69,7 +69,7 @@ export default {
 
 <style scoped lang="scss">
 div {
-  width: 80vw;
+  width: 85vw;
   max-width: 800px;
   margin: 25px auto;
 }

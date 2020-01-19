@@ -102,7 +102,7 @@ export default {
 <style lang="scss" scoped>
 div {
   box-shadow: 2px 3px 6px #0000002e;
-  padding: 20px;
+  padding: 1vh 20px;
   height: 30vh;
   display: grid;
 

@@ -1,6 +1,9 @@
 <template>
   <div id="card">
-    <span id="headline">Load from Google Sheet?</span>
+    <span id="headline"
+      >Load from Google Sheet? <br />
+      <small>or any public csv table</small>
+    </span>
     <div id="button">
       <v-text-field
         label="Public Sheet URL"
@@ -60,6 +63,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
+small {
+  font-size: 10px;
+  color: darkgray;
+}
 div#card {
   box-shadow: 2px 3px 6px #0000002e;
   padding: 20px;
