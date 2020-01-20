@@ -1,14 +1,33 @@
-import Vue from 'vue'
-import App from './App.vue'
-import Vuetify from "vuetify";
+import Vue from "vue";
+import App from "./App.vue";
+import Vuetify, {
+  VLayout,
+  VBtn,
+  VInput,
+  VList,
+  VTextField,
+  VSwitch,
+  VFlex,
+  VIcon,
+  VCard
+} from "vuetify/lib";
 
-import './registerServiceWorker'
+import "./registerServiceWorker";
 import "vuetify/dist/vuetify.min.css";
 import "material-design-icons-iconfont/dist/material-design-icons.css";
 
-Vue.config.productionTip = false;
-
 Vue.use(Vuetify, {
+  components: {
+    VLayout,
+    VTextField,
+    VBtn,
+    VInput,
+    VList,
+    VSwitch,
+    VFlex,
+    VIcon,
+    VCard
+  },
   breakpoint: {
     thresholds: {
       xs: 360,
@@ -16,8 +35,8 @@ Vue.use(Vuetify, {
     },
     scrollbarWidth: 10
   }
-})
+});
 
 new Vue({
-  render: h => h(App),
-}).$mount('#app')
+  render: h => h(App)
+}).$mount("#app");

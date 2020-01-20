@@ -173,8 +173,13 @@ export default {
     sec() {
       return this.timed ? this.time : 0;
     },
-    timed() {
-      return this.time > 0;
+    timed: {
+      get() {
+        return this.time > 0;
+      },
+      set(val) {
+        this.time = val ? 30 : 0;
+      }
     }
   }
 };

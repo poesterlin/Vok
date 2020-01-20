@@ -3,25 +3,25 @@
     <div v-if="isDone">
       <v-card id="done">
         <h1>You are done</h1>
-        <br>
+        <br />
         <v-btn color="orange" @click="$emit('again')">test again</v-btn>
       </v-card>
-      <br>
+      <br />
       <Report :result="results"></Report>
     </div>
 
     <v-card elevation-3 id="card" v-else-if="currVoc && currVoc.voc">
       <v-card-title primary-title id="test">
         <div id="counter">
-          <span>Correct: {{currVoc.right}}/{{repeat}}</span>
-          <span v-if="time > 0 && !reveal">{{timeLeft}}</span>
-          <span>Total: {{done.length}}/{{all.length}}</span>
+          <span>Correct: {{ currVoc.right }}/{{ repeat }}</span>
+          <span v-if="time > 0 && !reveal">{{ timeLeft }}</span>
+          <span>Total: {{ done.length }}/{{ all.length }}</span>
         </div>
 
-        <div id="question">{{currVoc.voc.q}}</div>
-        <div id="answer" :class="{hide: !reveal}">
+        <div id="question">{{ currVoc.voc.q }}</div>
+        <div id="answer" :class="{ hide: !reveal }">
           <b>A:</b>
-          {{currVoc.voc.a}}
+          {{ currVoc.voc.a }}
         </div>
       </v-card-title>
       <v-card-actions>
@@ -32,10 +32,32 @@
             round
             :ripple="false"
             @click="reveal = true"
-          >Reveal</v-btn>
-          <v-btn v-if="reveal" color="green lighten-1" depressed @click="next(true)">right</v-btn>
-          <v-btn v-if="reveal" color="red lighten-1" depressed @click="next(false)">wrong</v-btn>
-          <v-btn v-if="reveal" color="orange" flat @click="skip(); setRes({ skipped: true });">skip</v-btn>
+            >Reveal</v-btn
+          >
+          <v-btn
+            v-if="reveal"
+            color="green lighten-1"
+            depressed
+            @click="next(true)"
+            >right</v-btn
+          >
+          <v-btn
+            v-if="reveal"
+            color="red lighten-1"
+            depressed
+            @click="next(false)"
+            >wrong</v-btn
+          >
+          <v-btn
+            v-if="reveal"
+            color="orange"
+            flat
+            @click="
+              skip();
+              setRes({ skipped: true });
+            "
+            >skip</v-btn
+          >
         </div>
       </v-card-actions>
     </v-card>
@@ -47,7 +69,7 @@ export default {
   name: "test",
   props: ["vocs"],
   components: {
-    'Report': () => import('@/components/Report.vue')
+    Report: () => import("@/components/Report.vue")
   },
   data() {
     return {
@@ -60,13 +82,19 @@ export default {
       timeout: null,
       startTime: Date.now(),
       currentTime: Date.now(),
-      results: [],
+      results: []
     };
   },
   mounted() {
     this.notSeen = this.all.filter(t => !!t).slice(0);
-    this.results = this.all.filter(t => !!t).map(voc => { return { voc: voc.q, answer: voc.a, wrong: 0, skipped: 0, right: 0 } })
-    this.currentbatch = new Array(Math.min(this.batchLength, this.notSeen.length))
+    this.results = this.all
+      .filter(t => !!t)
+      .map(voc => {
+        return { voc: voc.q, answer: voc.a, wrong: 0, skipped: 0, right: 0 };
+      });
+    this.currentbatch = new Array(
+      Math.min(this.batchLength, this.notSeen.length)
+    )
       .fill(null)
       .map(this.getRandom);
 
@@ -121,7 +149,10 @@ export default {
         this.startTime = Date.now();
         this.currentTime = Date.now();
         clearTimeout(this.timeout);
-        this.timeout = setTimeout(() => this.reveal || this.next(false), this.time * 1000);
+        this.timeout = setTimeout(
+          () => this.reveal || this.next(false),
+          this.time * 1000
+        );
       }
     },
     getRandom() {
@@ -147,7 +178,6 @@ export default {
       res.skipped += skipped ? 1 : 0;
       res.right += right ? 1 : 0;
     }
-
   },
   computed: {
     isDone() {
@@ -180,12 +210,15 @@ export default {
     },
     timeLeft() {
       return Math.floor((this.startTime - this.currentTime) / 1000) + this.time;
-    },
+    }
   }
 };
 </script>
 
 <style scoped lang="scss">
+* {
+  text-align: center;
+}
 #test {
   padding: 30px;
   #question,
@@ -224,6 +257,7 @@ export default {
 
 #done,
 #card {
+  padding: 1%;
   width: 90vw;
   max-width: 800px;
   margin: auto;

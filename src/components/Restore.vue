@@ -56,7 +56,12 @@ export default {
 
 <style scoped lang="scss">
 div#card {
-  box-shadow: 2px 3px 6px #0000002e;
+  box-shadow: 0 0.2px 0.4px rgba(0, 0, 0, 0.014),
+    0 0.4px 0.9px rgba(0, 0, 0, 0.02), 0 0.8px 1.6px rgba(0, 0, 0, 0.025),
+    0 1.3px 2.9px rgba(0, 0, 0, 0.03), 0 2.5px 5.4px rgba(0, 0, 0, 0.036),
+    0 6px 13px rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+
   padding: 20px;
   height: 9vh;
   display: grid;

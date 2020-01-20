@@ -35,9 +35,10 @@ export default {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  margin-bottom: 45px;
 }
 header {
-  background: #234737;
+  background: #27342e;
   color: white;
   height: 60px;
   margin-bottom: 3vh;
