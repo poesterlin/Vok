@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Restore v-if="stored && !workbookSet" v-model="config" />
+    <Restore v-if="!workbookSet" v-model="config" />
     <FilePicker v-if="!workbookSet" v-model="config" />
     <GooglePicker v-if="!workbookSet" v-model="config" />
     <ExpImage v-if="!workbookSet"></ExpImage>
@@ -26,35 +26,22 @@ export default {
         batchsize: 5,
         time: 0,
         repeat: 5
-      },
-      stored: false
+      }
     };
   },
   methods: {
     parse(s) {
       return JSON.parse(window.localStorage.getItem(s)).data;
-    },
-    hasStored() {
-      try {
-        this.parse("repeat");
-        this.parse("penalty");
-        this.parse("batchsize");
-        this.parse("vocs");
-        this.parse("time");
-
-        return true;
-      } catch (error) {
-        window.localStorage.clear();
-        return false;
-      }
     }
-  },
-  mounted() {
-    this.stored = this.hasStored();
   },
   watch: {
     config: function(newval) {
+      this.config.penalty = this.config.penalty || 1;
+      this.config.batchsize = this.config.batchsize || 5;
+      this.config.time = this.config.time || 0;
+      this.config.repeat = this.config.repeat || 5;
       if (newval.done) {
+        window.location.hash = "";
         this.$emit("done", this.config);
       }
     }

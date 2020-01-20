@@ -33,7 +33,7 @@
           <v-switch label="Forward" color="orange" v-model="forward"></v-switch>
         </v-flex>
         <v-flex md3 xs6 px-2>
-          <v-flat-field
+          <v-text-field
             v-model="penalty"
             type="number"
             label="Penalty for wrong answer"

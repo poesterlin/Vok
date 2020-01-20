@@ -7,15 +7,19 @@
     <div id="button">
       <v-text-field
         label="Public Sheet URL"
-        prepend-icon="help"
-        @click:prepend="help"
-        persistent-hint
         hint="Only works with published sheets"
+        :rules="[rules.valid, rules.https, rules.sheet]"
+        prepend-icon="help"
         outlined
+        @click:prepend="help"
         v-model="sheetUrl"
+        persistent-hint
       ></v-text-field>
       <v-btn color="orange" flat @click="loadGoogleSheet">Load</v-btn>
+      <v-btn color="orange" flat @click="copyUrl" v-if="isSheet">Share</v-btn>
     </div>
+    <span v-if="message && sheetUrl" class="error msg">{{ message }}</span>
+    <span v-if="copied" class="msg">Share Url was copied to clipboard</span>
   </div>
 </template>
 
@@ -26,17 +30,68 @@ export default {
   data() {
     return {
       sheetUrl: "",
-      loading: false
+      loading: false,
+      message: "",
+      copied: false,
+      rules: {
+        valid: () =>
+          (this.url.set &&
+            this.url.valid &&
+            this.url.hostname !== "localhost") ||
+          "invalid url",
+        https: () =>
+          (this.url.set && this.url.protocol !== "https") ||
+          "only https allowed",
+        sheet: () => !this.isSheet || "Google Sheet Url detected"
+      }
     };
   },
-  mounted() {},
+  mounted() {
+    if (window.location.hash) {
+      this.sheetUrl = `https://docs.google.com/spreadsheets/d/e/${window.location.hash.substring(
+        1
+      )}/pub?output=csv`;
+      this.loadGoogleSheet();
+    }
+  },
   methods: {
     async loadGoogleSheet() {
-      /* eslint-disable */
+      let url = this.sheetUrl;
+      if (this.isSheet) {
+        const outputType = this.url.searchObject.output;
+        if (
+          url.includes("/pub") ||
+          (outputType !== undefined && outputType !== "csv")
+        ) {
+          url = url.slice(0, url.lastIndexOf("/"));
+        }
+        url += "/pub?output=csv";
+      }
+
+      this.sheetUrl = url;
+      this.error = this.rules.valid() !== true || this.rules.https() !== true;
+      if (this.error) {
+        this.message = "Check Url";
+        return;
+      }
+
       this.loading = true;
-      const req = await fetch(this.sheetUrl);
-      const str = await req.text();
-      this.loading = false;
+      let str;
+      try {
+        const req = await fetch(url);
+        if (req.status !== 200) {
+          throw 404;
+        }
+        str = await req.text();
+      } catch (e) {
+        this.error = true;
+        // eslint-disable-next-line
+        console.log(e);
+        this.message = "could not load file";
+        return;
+      } finally {
+        this.loading = false;
+      }
 
       const data = str
         .split("\n")
@@ -44,8 +99,34 @@ export default {
           const [q, a] = line.split(",");
           return { q, a };
         })
-        .filter(({ q, a }) => q !== undefined && a !== undefined && a !== "");
+        .filter(({ q, a }) => !!q && !!a);
       this.$emit("input", { data });
+    },
+    copyUrl() {
+      const share = this.url.pathname
+        .replace("/spreadsheets/d/e/", "")
+        .replace(/\/.*/, "");
+      const base = window.location.href;
+      this.copyTextToClipboard(base + "#" + share);
+      this.copied = true;
+    },
+    fallbackCopyTextToClipboard(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+    },
+    copyTextToClipboard(text) {
+      if (!navigator.clipboard) {
+        this.fallbackCopyTextToClipboard(text);
+        return;
+      }
+      navigator.clipboard.writeText(text);
     },
     help() {
       window.open(
@@ -54,9 +135,41 @@ export default {
       );
     }
   },
+  watch: {
+    url: function(val) {
+      /* eslint-disable */
+      console.log(val);
+    }
+  },
   computed: {
+    isSheet() {
+      return this.sheetUrl.includes("docs.google.com/spreadsheets");
+    },
     sec() {
       return this.timed ? this.time : 0;
+    },
+    url() {
+      const url = this.sheetUrl;
+      const parser = document.createElement("a"),
+        searchObject = {};
+      parser.href = url;
+      let queries = parser.search.replace(/^\?/, "").split("&");
+      for (let i = 0; i < queries.length; i++) {
+        let split = queries[i].split("=");
+        searchObject[split[0]] = split[1];
+      }
+      return {
+        valid: /^(ftp|http|https):\/\/[^ "]+$/.test(url),
+        set: !!url,
+        protocol: parser.protocol,
+        host: parser.host,
+        hostname: parser.hostname,
+        port: parser.port,
+        pathname: parser.pathname || "",
+        search: parser.search,
+        searchObject,
+        hash: parser.hash
+      };
     }
   }
 };
@@ -94,5 +207,12 @@ div#card {
       width: 30px;
     }
   }
+}
+.error {
+  color: red !important;
+}
+.msg {
+  margin: 0 auto;
+  color: darkgray;
 }
 </style>

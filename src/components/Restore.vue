@@ -1,5 +1,5 @@
 <template>
-  <div id="card">
+  <div id="card" v-if="hasStored">
     <span id="headline">Restore previous file?</span>
     <v-btn id="button1" @click="restore">yes</v-btn>
     <v-btn id="button2" flat @click="reset">no</v-btn>
@@ -14,6 +14,22 @@ export default {
     return {
       loading: false
     };
+  },
+  computed: {
+    hasStored() {
+      try {
+        this.parse("repeat");
+        this.parse("penalty");
+        this.parse("batchsize");
+        this.parse("vocs");
+        this.parse("time");
+
+        return true;
+      } catch (error) {
+        window.localStorage.clear();
+        return false;
+      }
+    }
   },
   methods: {
     parse(s) {
