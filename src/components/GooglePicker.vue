@@ -55,6 +55,10 @@ export default {
     }
   },
   methods: {
+    setCharAt(str, index, chr) {
+      if (index > str.length - 1) return str;
+      return str.substr(0, index - 1) + chr + str.substr(index + 1);
+    },
     async loadGoogleSheet() {
       let url = this.sheetUrl;
       if (this.isSheet) {
@@ -96,7 +100,28 @@ export default {
       const data = str
         .split("\n")
         .map(line => {
-          const [q, a] = line.split(",");
+          if (line.startsWith('"')) {
+            // , in question
+            const c = line.indexOf(",");
+            const t = line.substr(1).indexOf('"');
+            if (c <= t) {
+              line = this.setCharAt(line, c, "-*-*");
+            }
+          }
+          let [q, ...a] = line.split(",");
+          a = a.slice(1).reduce((prev, curr) => prev + "," + curr, a[0]);
+          if (a.lastIndexOf('"') === a.length - 1) {
+            a = a.substring(0, -1);
+          }
+          q = q.replace("-*-*", ",");
+          a = a
+            .replace('""', '"-*-*"')
+            .replace('"', "")
+            .replace('"-*-*"', '"');
+          q = q
+            .replace('""', '"-*-*"')
+            .replace('"', "")
+            .replace('"-*-*"', '"');
           return { q, a };
         })
         .filter(({ q, a }) => !!q && !!a);
@@ -133,12 +158,6 @@ export default {
         "https://support.google.com/docs/answer/183965#publishcharts",
         "_blank"
       );
-    }
-  },
-  watch: {
-    url: function(val) {
-      /* eslint-disable */
-      console.log(val);
     }
   },
   computed: {
