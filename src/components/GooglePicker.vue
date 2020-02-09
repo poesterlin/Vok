@@ -24,6 +24,7 @@
 </template>
 
 <script>
+import Papa from "papaparse";
 export default {
   name: "GooglePicker",
   prop: ["value"],
@@ -97,33 +98,8 @@ export default {
         this.loading = false;
       }
 
-      const data = str
-        .split("\n")
-        .map(line => {
-          if (line.startsWith('"')) {
-            // , in question
-            const c = line.indexOf(",");
-            const t = line.substr(1).indexOf('"');
-            if (c <= t) {
-              line = this.setCharAt(line, c, "-*-*");
-            }
-          }
-          let [q, ...a] = line.split(",");
-          a = a.slice(1).reduce((prev, curr) => prev + "," + curr, a[0]);
-          if (a.lastIndexOf('"') === a.length - 1) {
-            a = a.substring(0, -1);
-          }
-          q = q.replace("-*-*", ",");
-          a = a
-            .replace('""', '"-*-*"')
-            .replace('"', "")
-            .replace('"-*-*"', '"');
-          q = q
-            .replace('""', '"-*-*"')
-            .replace('"', "")
-            .replace('"-*-*"', '"');
-          return { q, a };
-        })
+      const data = Papa.parse(str /* { worker: true } */)
+        .data.map(res => ({ q: res[0], a: res[1] }))
         .filter(({ q, a }) => !!q && !!a);
       this.$emit("input", { data });
     },
