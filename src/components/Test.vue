@@ -65,6 +65,7 @@
 </template>
 
 <script>
+import { Clusterer } from "k-medoids";
 export default {
   name: "test",
   props: ["vocs"],
@@ -87,6 +88,7 @@ export default {
   },
   mounted() {
     this.notSeen = this.all.filter(t => !!t).slice(0);
+    this.notSeen = this.sort(this.notSeen);
     this.results = this.all
       .filter(t => !!t)
       .map(voc => {
@@ -107,6 +109,24 @@ export default {
     this.skip();
   },
   methods: {
+    sort(data) {
+      const hammingDistance = (a, b) => {
+        let distance = 0;
+        for (let i = 0; i < a.length; i += 1) {
+          if (a[i] !== b[i]) {
+            distance += 1;
+          }
+        }
+        return distance;
+      };
+
+      const n = Math.floor(data.length / this.batchLength);
+      const clusterer = Clusterer.getInstance(data, n, (a, b) =>
+        hammingDistance(a.q + a.a, b.q + b.a)
+      );
+      const clusteredData = clusterer.getClusteredData();
+      return clusteredData.reduce((acc, val) => acc.concat(val), []);
+    },
     next(correct) {
       if (this.isDone) {
         return;
@@ -156,11 +176,7 @@ export default {
       }
     },
     getRandom() {
-      const randIdx = Math.min(
-        Math.floor(Math.random() * this.notSeen.length) + 1,
-        this.notSeen.length - 1
-      );
-      const voc = this.notSeen.splice(randIdx, 1)[0];
+      const voc = this.notSeen.splice(0, 1)[0];
       return { voc, right: 0 };
     },
     checkVisible() {
