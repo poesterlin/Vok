@@ -1,7 +1,7 @@
 <template>
   <div id="card" v-cloak>
-    <span id="headline"
-      >Load from Google Sheet? <br />
+    <span id="headline">
+      <span class="bold">From Google Sheet:</span>
       <small>or any public csv table</small>
     </span>
     <div id="button">
@@ -100,7 +100,7 @@ export default {
 
       const data = Papa.parse(str /* { worker: true } */)
         .data.map(res => ({ q: res[0], a: res[1] }))
-        .filter(({ q, a }) => !!q && !!a);
+        .filter(({ q, a }) => !!q && !!a && a !== "" && q !== "");
       this.$emit("input", { data });
     },
     copyUrl() {
@@ -181,7 +181,7 @@ div#card {
     0 1.3px 2.9px rgba(0, 0, 0, 0.03), 0 2.5px 5.4px rgba(0, 0, 0, 0.036),
     0 6px 13px rgba(0, 0, 0, 0.05);
   border-radius: 4px;
-  padding: 5px 20px;
+  padding: 10px 20px;
   height: 20vh;
   min-height: 190px;
 
@@ -193,8 +193,18 @@ div#card {
 
   span#headline {
     grid-area: header;
-    margin: auto;
     font-size: 20px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    .bold {
+      font-size: 16px;
+      font-weight: bold;
+      color: #383838;
+    }
+    small {
+      flex: 1 1 100%;
+    }
   }
   #button {
     grid-area: button;

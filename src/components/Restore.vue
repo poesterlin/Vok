@@ -1,8 +1,8 @@
 <template>
-  <div id="card" v-if="hasStored">
+  <div id="card" v-if="hasStored && !ignore">
     <span id="headline">Restore previous file?</span>
-    <v-btn id="button1" @click="restore">yes</v-btn>
-    <v-btn id="button2" flat @click="reset">no</v-btn>
+    <v-btn id="button1" @click="restore()">yes</v-btn>
+    <v-btn id="button2" flat @click="reset()">no</v-btn>
   </div>
 </template>
 
@@ -12,7 +12,8 @@ export default {
   prop: ["value"],
   data() {
     return {
-      loading: false
+      loading: false,
+      ignore: false
     };
   },
   computed: {
@@ -37,6 +38,7 @@ export default {
     },
     reset() {
       window.localStorage.clear();
+      this.ignore = true;
     },
     restore() {
       const repeat = this.parse("repeat");

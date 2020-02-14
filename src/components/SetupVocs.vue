@@ -1,9 +1,11 @@
 <template>
   <div>
     <Restore v-if="!workbookSet" v-model="config" />
-    <FilePicker v-if="!workbookSet" v-model="config" />
-    <GooglePicker v-if="!workbookSet" v-model="config" />
     <ExpImage v-if="!workbookSet"></ExpImage>
+    <h3 v-if="!workbookSet">Load your vocabulary:</h3>
+    <FilePicker v-if="!workbookSet" v-model="config" />
+    <PasteTable v-if="!workbookSet" v-model="config" />
+    <GooglePicker v-if="!workbookSet" v-model="config" />
     <TableSelect v-if="workbookSet" v-model="config" />
   </div>
 </template>
@@ -14,6 +16,7 @@ export default {
   components: {
     ExpImage: () => import("@/components/Image.vue"),
     FilePicker: () => import("@/components/FilePicker.vue"),
+    PasteTable: () => import("@/components/PasteTable.vue"),
     GooglePicker: () => import("@/components/GooglePicker.vue"),
     Restore: () => import("@/components/Restore.vue"),
     TableSelect: () => import("@/components/TableSelect.vue")
@@ -59,5 +62,12 @@ div {
   width: 85vw;
   max-width: 800px;
   margin: 25px auto;
+  padding-bottom: 25vh;
+}
+
+h3 {
+  color: #383838;
+  font-size: 17px;
+  margin: 30px 0 10px;
 }
 </style>
