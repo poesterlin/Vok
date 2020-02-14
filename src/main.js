@@ -9,7 +9,9 @@ import Vuetify, {
   VSwitch,
   VFlex,
   VIcon,
-  VCard
+  VCard,
+  VCardActions,
+  VCardTitle
 } from "vuetify/lib";
 
 import "./registerServiceWorker";
@@ -26,7 +28,9 @@ Vue.use(Vuetify, {
     VSwitch,
     VFlex,
     VIcon,
-    VCard
+    VCard,
+    VCardActions,
+    VCardTitle
   },
   breakpoint: {
     thresholds: {

@@ -1,5 +1,6 @@
 <template>
   <div>
+    <span v-if="processing">Processing...</span>
     <div v-if="isDone">
       <v-card id="done">
         <h1>You are done</h1>
@@ -10,7 +11,11 @@
       <Report :result="results"></Report>
     </div>
 
-    <v-card elevation-3 id="card" v-else-if="currVoc && currVoc.voc">
+    <v-card
+      elevation-3
+      id="card"
+      v-else-if="!processing && currVoc && currVoc.voc"
+    >
       <v-card-title primary-title id="test">
         <div id="counter">
           <span>Correct: {{ currVoc.right }}/{{ repeat }}</span>
@@ -83,12 +88,13 @@ export default {
       timeout: null,
       startTime: Date.now(),
       currentTime: Date.now(),
-      results: []
+      results: [],
+      processing: true
     };
   },
   mounted() {
     this.notSeen = this.all.filter(t => !!t).slice(0);
-    this.notSeen = this.sort(this.notSeen);
+    this.sort(this.notSeen).then(sorted => (this.notSeen = sorted));
     this.results = this.all
       .filter(t => !!t)
       .map(voc => {
@@ -100,24 +106,31 @@ export default {
       .fill(null)
       .map(this.getRandom);
 
-    // eslint-disable-next-line
-    console.log(this.vocs);
-
     document.onvisibilitychange = this.checkVisible;
 
     setInterval(() => (this.currentTime = Date.now()), 1000);
     this.skip();
   },
   methods: {
-    sort(data) {
+    async sort(data) {
+      await new Promise(res => setTimeout(res, 200));
+      await Promise.resolve();
       const hammingDistance = (a, b) => {
         let distance = 0;
-        for (let i = 0; i < a.length; i += 1) {
-          if (a[i] !== b[i]) {
-            distance += 1;
+        const aA = a.split(" ");
+        const bA = b.split(" ");
+        for (let i = 0; i < Math.max(aA.length, bA.length); i += 1) {
+          const w1 = aA[i] || "";
+          const w2 = bA[i] || "";
+          for (let j = 0; j < Math.max(w1.length, w2.length); j += 1) {
+            if (w1[j] !== w2[j]) {
+              distance += 1;
+            } else {
+              distance -= 3;
+            }
           }
         }
-        return distance;
+        return Math.max(0, distance);
       };
 
       const n = Math.floor(data.length / this.batchLength);
@@ -125,6 +138,7 @@ export default {
         hammingDistance(a.q + a.a, b.q + b.a)
       );
       const clusteredData = clusterer.getClusteredData();
+      this.processing = false;
       return clusteredData.reduce((acc, val) => acc.concat(val), []);
     },
     next(correct) {
