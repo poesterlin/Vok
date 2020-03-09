@@ -133,7 +133,7 @@ export default {
         return Math.max(0, distance);
       };
 
-      const n = Math.floor(data.length / this.batchLength);
+      const n = Math.floor(6);
       const clusterer = Clusterer.getInstance(data, n, (a, b) =>
         hammingDistance(a.q + a.a, b.q + b.a)
       );

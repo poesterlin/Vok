@@ -15,8 +15,8 @@
           :key="index"
           :class="{ del: isIgnored(index) }"
         >
-          <td>{{ row[forward ? "q" : "a"] }}</td>
-          <td>{{ row[forward ? "a" : "q"] }}</td>
+          <td>{{ row.q }}</td>
+          <td>{{ row.a }}</td>
           <td>
             <v-btn icon small text @click="ignoreRow(index)">
               <v-icon v-if="isIgnored(index)">add</v-icon>
@@ -26,7 +26,29 @@
         </tr>
       </table>
     </div>
-    <v-card elevation-0 id="settings">
+    <div class="settings">
+      <h3>Select Learing Mode:</h3>
+      <button @click="set('first')" :class="{ selected: selected === 'first' }">
+        <b>First run trough</b><span>Get to know your vocabulary.</span>
+      </button>
+      <button @click="set('power')" :class="{ selected: selected === 'power' }">
+        <b>Power Learning</b><span>Get it into your longterm memory.</span>
+      </button>
+      <button
+        @click="set('reverse')"
+        :class="{ selected: selected === 'reverse' }"
+      >
+        <b>Backwards Power Learning</b
+        ><span>Power learning with swapped columns.</span>
+      </button>
+      <button
+        @click="set('custom')"
+        :class="{ selected: selected === 'custom' }"
+      >
+        <b>Custom</b><span>Advanced configurations... </span>
+      </button>
+    </div>
+    <v-card elevation-0 id="custom" v-if="selected === 'custom'">
       <b>Settings:</b>
       <v-layout row wrap justify-center>
         <v-flex md3 xs6 px-2>
@@ -70,13 +92,16 @@
         </v-flex>
       </v-layout>
     </v-card>
-    <v-layout>
-      <v-flex xs12 pa-2>
-        <v-btn id="done" large color="orange darken-2" @click="done()"
-          >start Test</v-btn
-        >
-      </v-flex>
-    </v-layout>
+    <div class="center">
+      <v-btn
+        id="done"
+        :disabled="!modeSet"
+        large
+        color="orange darken-2"
+        @click="done()"
+        >Start Test</v-btn
+      >
+    </div>
   </div>
 </template>
 
@@ -93,6 +118,8 @@ export default {
       time: undefined,
       forward: true,
       ignore: [],
+      modeSet: false,
+      selected: "",
       rule: {
         positive: n => n >= 0 || "has to be 0 or bigger",
         one: n => n >= 1 || "has to be 1 or bigger"
@@ -155,6 +182,30 @@ export default {
         time,
         done: true
       });
+    },
+    set(mode) {
+      this.selected = mode;
+      this.modeSet = true;
+      if (mode === "first") {
+        this.penalty = 1;
+        this.batchsize = Math.floor(this.data.length / 3);
+        this.repeat = 1;
+        this.time = 0;
+        this.forward = true;
+      }
+      if (mode === "power" || mode === 'reverse') {
+        this.penalty = 0;
+        this.batchsize = 6;
+        this.repeat = 5;
+        this.time = 30;
+        this.forward = true;
+      }
+      if (mode === "reverse") {
+        this.forward = false;
+      }
+      if (mode === "custom") {
+        return;
+      }
     }
   },
   watch: {
@@ -186,16 +237,59 @@ export default {
 </script>
 
 <style scoped lang="scss">
-div.center {
-  margin: auto;
-  width: 90vw;
-  max-width: 800px;
+.settings {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  flex-direction: row;
+  margin-top: 7vh;
+  justify-content: center;
+
+  h3 {
+    flex: 1 1 100%;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  button {
+    border: 1px solid gray;
+    border-radius: 8px;
+    flex: 1 1 40%;
+    max-width: 40%;
+    min-width: 220px;
+    margin: 5px 3%;
+    padding: 10px;
+    box-shadow: 2px 2px #f2f2f2;
+
+    &:hover {
+      background: #f5891b2e;
+    }
+
+    b {
+      display: inline-block;
+      width: 100%;
+      color: #2a2a2a;
+    }
+
+    span {
+      font-size: 12px;
+    }
+  }
+
+  button.selected {
+    background: #f5881bc2;
+  }
+}
+
+#custom {
+  padding: 15px;
+  margin: 10px 0;
 }
 
 div#scroller {
-  max-height: 50vh;
-  overflow-x: hidden;
+  max-height: 30vh;
   overflow-y: auto;
+  box-shadow: 2px 2px #f2f2f2;
 }
 
 #arrow {
@@ -218,17 +312,15 @@ table#vocs {
   }
 }
 
-#settings {
-  text-align: left;
-}
-
-b {
-  margin: 5px;
-}
-
-#done {
-  color: rgba(255, 255, 255, 0.925);
-  font-weight: bold;
+.center {
+  display: flex;
+  justify-content: center;
+  margin: 30px 0;
+  #done {
+    color: rgba(255, 255, 255, 0.925);
+    font-weight: bold;
+    margin: auto;
+  }
 }
 
 .del {

@@ -62,7 +62,7 @@ div {
   width: 85vw;
   max-width: 800px;
   margin: 25px auto;
-  padding-bottom: 25vh;
+  padding-bottom: 10vh;
 }
 
 h3 {
