@@ -2,19 +2,21 @@
   <div>
     <table id="arrow">
       <tr>
-        <td><span>Question</span></td>
-        <td><v-icon dark>arrow_forward</v-icon></td>
-        <td><span>Answer</span></td>
+        <td>
+          <span>Question</span>
+        </td>
+        <td>
+          <v-icon dark>arrow_forward</v-icon>
+        </td>
+        <td>
+          <span>Answer</span>
+        </td>
       </tr>
     </table>
 
     <div id="scroller">
       <table id="vocs">
-        <tr
-          v-for="(row, index) of data"
-          :key="index"
-          :class="{ del: isIgnored(index) }"
-        >
+        <tr v-for="(row, index) of data" :key="index" :class="{ del: isIgnored(index) }">
           <td>{{ row.q }}</td>
           <td>{{ row.a }}</td>
           <td>
@@ -29,23 +31,20 @@
     <div class="settings">
       <h3>Select Learing Mode:</h3>
       <button @click="set('first')" :class="{ selected: selected === 'first' }">
-        <b>First run trough</b><span>Get to know your vocabulary.</span>
+        <b>First run trough</b>
+        <span>Get to know your vocabulary.</span>
       </button>
       <button @click="set('power')" :class="{ selected: selected === 'power' }">
-        <b>Power Learning</b><span>Get it into your longterm memory.</span>
+        <b>Power Learning</b>
+        <span>Get it into your longterm memory.</span>
       </button>
-      <button
-        @click="set('reverse')"
-        :class="{ selected: selected === 'reverse' }"
-      >
-        <b>Backwards Power Learning</b
-        ><span>Power learning with swapped columns.</span>
+      <button @click="set('reverse')" :class="{ selected: selected === 'reverse' }">
+        <b>Backwards Power Learning</b>
+        <span>Power learning with swapped columns.</span>
       </button>
-      <button
-        @click="set('custom')"
-        :class="{ selected: selected === 'custom' }"
-      >
-        <b>Custom</b><span>Advanced configurations... </span>
+      <button @click="set('custom')" :class="{ selected: selected === 'custom' }">
+        <b>Custom</b>
+        <span>Advanced configurations...</span>
       </button>
     </div>
     <v-card elevation-0 id="custom" v-if="selected === 'custom'">
@@ -63,20 +62,10 @@
           />
         </v-flex>
         <v-flex md3 xs6 px-2>
-          <v-text-field
-            v-model="repeat"
-            type="number"
-            label="Repetitions"
-            :rules="[rule.one]"
-          />
+          <v-text-field v-model="repeat" type="number" label="Repetitions" :rules="[rule.one]" />
         </v-flex>
         <v-flex md3 xs6 px-2>
-          <v-text-field
-            v-model="batchsize"
-            type="number"
-            label="Group size"
-            :rules="[rule.one]"
-          />
+          <v-text-field v-model="batchsize" type="number" label="Group size" :rules="[rule.one]" />
         </v-flex>
         <v-flex md3 xs6 px-2>
           <v-switch label="Timed" color="orange" v-model="timed"></v-switch>
@@ -93,14 +82,7 @@
       </v-layout>
     </v-card>
     <div class="center">
-      <v-btn
-        id="done"
-        :disabled="!modeSet"
-        large
-        color="orange darken-2"
-        @click="done()"
-        >Start Test</v-btn
-      >
+      <v-btn id="done" :disabled="!modeSet" large color="orange darken-2" @click="done()">Start Test</v-btn>
     </div>
   </div>
 </template>
@@ -127,6 +109,13 @@ export default {
     };
   },
   methods: {
+    shuffle(a) {
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    },
     getCell(frontRow, voc) {
       let row;
       if (frontRow) {
@@ -168,6 +157,7 @@ export default {
       window.localStorage.setItem(key, s);
     },
     emit({ data, penalty, batchsize, repeat, time }) {
+      data = this.shuffle(data)
       this.store("repeat", repeat);
       this.store("penalty", penalty);
       this.store("batchsize", batchsize);
@@ -211,7 +201,7 @@ export default {
   watch: {
     value: {
       immediate: true,
-      handler: function(val) {
+      handler: function (val) {
         this.data = val.data;
         this.penalty = val.penalty;
         this.batchsize = val.batchsize;
