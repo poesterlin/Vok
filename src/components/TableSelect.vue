@@ -178,7 +178,7 @@ export default {
       this.modeSet = true;
       if (mode === "first") {
         this.penalty = 1;
-        this.batchsize = Math.floor(this.data.length / 3);
+        this.batchsize = Math.max(Math.floor(this.data.length / 3), 5);
         this.repeat = 1;
         this.time = 0;
         this.forward = true;

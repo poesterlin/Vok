@@ -1,19 +1,15 @@
 <template>
   <div>
     <h1>Report</h1>
-    <br>
+    <br />
     <table>
       <thead>
         <td>Vok</td>
-        <td>right</td>
         <td>wrong</td>
-        <td>skipped</td>
       </thead>
       <tr v-for="(res, index) in results" :key="index">
         <td :title="res.answer">{{res.voc}}</td>
-        <td>{{res.right}}</td>
-        <td>{{res.wrong}}</td>
-        <td>{{res.skipped}}</td>
+        <td :style="{ background: `rgba(214, 5, 5, ${res.wrong / max})` }">{{res.wrong}}</td>
       </tr>
     </table>
   </div>
@@ -22,15 +18,24 @@
 <script>
 export default {
   probs: ["result"],
+  mounted() {
+    this.$attrs.result = this.$attrs.result.sort((r1, r2) => r2.wrong - r1.wrong);
+  },
   computed: {
     results() {
-      return this.$attrs.result;
+      return this.$attrs.result
+    },
+    max() {
+      return Math.max(...this.results.map(r => r.wrong))
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+h1 {
+  margin-top: 60px;
+}
 table {
   width: 80vw;
   max-width: 800px;
@@ -43,17 +48,6 @@ table {
   }
   & > *:nth-child(odd) {
     background: lightgray;
-  }
-  tr {
-    & > *:nth-child(2) {
-      background: rgba(0, 128, 0, 0.637);
-    }
-    & > *:nth-child(3) {
-      background: rgba(255, 0, 0, 0.452);
-    }
-    & > *:nth-child(4) {
-      background: #ffbf008a;
-    }
   }
 }
 </style>
