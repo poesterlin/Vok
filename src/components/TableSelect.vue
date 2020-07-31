@@ -185,8 +185,8 @@ export default {
       }
       if (mode === "power" || mode === 'reverse') {
         this.penalty = 0;
-        this.batchsize = 6;
-        this.repeat = 5;
+        this.batchsize = 7;
+        this.repeat = 3;
         this.time = 30;
         this.forward = true;
       }
