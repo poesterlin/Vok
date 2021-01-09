@@ -1,5 +1,7 @@
 # VokabelAbfrage
 
+Generate a vocabulary test from an excel sheet. This helps me learn faster. [Try it](https://vok-test.netlify.app/)
+
 ## Project setup
 ```
 npm install
@@ -14,16 +16,3 @@ npm run serve
 ```
 npm run build
 ```
-
-### Run your tests
-```
-npm run test
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
